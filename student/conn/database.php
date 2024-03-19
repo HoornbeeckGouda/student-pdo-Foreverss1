@@ -16,4 +16,3 @@ catch (mysqli_sql_exception $e) {
     exit;
 }
 
-?>

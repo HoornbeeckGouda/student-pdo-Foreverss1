@@ -1,7 +1,8 @@
 <?php
 session_start();
 include 'conn/database_pdo.php';
-
+include 'classes/student.php';
+include 'classes/edit.php';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -13,11 +14,8 @@ include 'conn/database_pdo.php';
 <body>
 
 <?php
-// initialiseren/declareren
-$contentTable = "";
-
-//tabelkop samenstellen
-$table_header = '<table id="students">
+$table_header = '
+<table id="students">
 <tr>
     <th>studentnr</th>
     <th>voornaam</th>
@@ -29,49 +27,39 @@ $table_header = '<table id="students">
     <th>email</th>
     <th>klas</th>
     <th>geboortedatum</th>
+    <th>acties</th>
 </tr>';
+$contentTable = "";
 
-$qry_student = "SELECT 
-                        id, 
-                        voornaam, 
-                        tussenvoegsel, 
-                        achternaam,
-                        straat,
-                        postcode,
-                        woonplaats,
-                        email,
-                        klas,
-                        geboortedatum
-                        FROM student
-                        ORDER BY achternaam, voornaam;";
-// gegevens query ophalen uit db student
-$result=$dbconn ->prepare($qry_student);
-$result->execute();
+$lol = new student($dbconn);
+
+$rows = $lol->getAllStudents();
+
 
 try {
-    $result->setFetchMode(PDO::FETCH_ASSOC);
-    foreach ($result as $rij) {
+    foreach ($rows as $rij) {
         $contentTable .= "<tr>
-        <td>" . $rij['id'] . "</td>
-        <td>" . $rij['voornaam'] . "</td>
-        <td>" . $rij['tussenvoegsel'] . "</td>
-        <td>" . $rij['achternaam'] . "</td>
-        <td>" . $rij['straat'] . "</td>
-        <td>" . $rij['postcode'] . "</td>
-        <td>" . $rij['woonplaats'] . "</td>
-        <td>" . $rij['email'] . "</td>
-        <td>" . $rij['klas'] . "</td>
-        <td>" . $rij['geboortedatum'] . "</td>
-        </tr>";
+            <td>" . $rij['id'] . "</td>
+            <td>" . $rij['voornaam'] . "</td>
+            <td>" . $rij['tussenvoegsel'] . "</td>
+            <td>" . $rij['achternaam'] . "</td>
+            <td>" . $rij['straat'] . "</td>
+            <td>" . $rij['postcode'] . "</td>
+            <td>" . $rij['woonplaats'] . "</td>
+            <td>" . $rij['email'] . "</td>
+            <td>" . $rij['klas'] . "</td>
+            <td>" . $rij['geboortedatum'] . "</td>
+            <td><a href='../student/edit.php?id=" . $rij['id'] . "'>Edit</a></td>
+            </tr>";
     }
-}catch (PDOException $e){
-    echo "Foutje: " . $e ->getMessage();
+} catch (PDOException $e){
+    echo "Foutje: " . $e->getMessage();
     echo "<script>alert('klanten niet gevonden');</script>";
 }
 
 $table_student = $table_header . $contentTable . "</table>";
-
 echo $table_student;
+
 ?>
 
 </body>
